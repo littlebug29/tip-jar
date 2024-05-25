@@ -2,7 +2,9 @@ package com.example.tipjar.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.tipjar.TipHistoryRepository
 import com.example.tipjar.database.TipDatabase
+import com.example.tipjar.database.dao.TipHistoryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +29,9 @@ object DatabaseModule {
 
     @Provides
     fun providesTipHistoryDao(tipDatabase: TipDatabase) = tipDatabase.tipHistoryDao()
+
+    @Singleton
+    @Provides
+    fun providesTipHistoryRepository(tipHistoryDao: TipHistoryDao) =
+        TipHistoryRepository(tipHistoryDao)
 }
