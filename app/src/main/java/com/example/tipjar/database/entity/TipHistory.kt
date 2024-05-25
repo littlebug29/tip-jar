@@ -5,6 +5,8 @@ import androidx.room.Entity
 
 @Entity(tableName = "tip_history", primaryKeys = ["timestamp"])
 data class TipHistory(
-    @ColumnInfo(name = "timestamp") val timestamp: Long
-
+    @ColumnInfo(name = "timestamp") val timestamp: Long,
+    val amount: Double,
+    val tip: Double,
+    val photoUri: String? = null
 )

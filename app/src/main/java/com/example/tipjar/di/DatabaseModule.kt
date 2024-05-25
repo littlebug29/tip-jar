@@ -1,6 +1,7 @@
 package com.example.tipjar.di
 
 import android.content.Context
+import androidx.room.Room
 import com.example.tipjar.database.TipDatabase
 import dagger.Module
 import dagger.Provides
@@ -18,8 +19,12 @@ object DatabaseModule {
     @Provides
     fun providesTipDatabase(
         @ApplicationContext context: Context
-    ): TipDatabase {
-        return TipDatabase.getInstance(context)
-    }
+    ): TipDatabase = Room.databaseBuilder(
+        context,
+        TipDatabase::class.java,
+        "tip_database"
+    ).build()
 
+    @Provides
+    fun providesTipHistoryDao(tipDatabase: TipDatabase) = tipDatabase.tipHistoryDao()
 }
