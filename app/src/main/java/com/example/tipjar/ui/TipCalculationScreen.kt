@@ -340,6 +340,4 @@ fun CustomOutlineTextField(
     }
 }
 
-private fun String.toColor() = Color(android.graphics.Color.parseColor(this))
-
 private fun cleanAmountInput(input: String): String = input.replace(Regex("[^\\d.]"), "")

@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tipjar.ui.ReceiptScreen
 import com.example.tipjar.ui.TipCalculationScreen
+import com.example.tipjar.ui.TipHistoryScreen
 import com.example.tipjar.ui.TipJarTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
@@ -99,9 +100,10 @@ class MainActivity : AppCompatActivity() {
                 )
             }
             composable(TIP_HISTORY_DESTINATION) {
-                Text(text = "History")
+                TipHistoryScreen(navController = navController, viewModel = viewModel)
             }
-            composable("receipt/{amount}/{tip}/{photoUri}") {
+            composable(RECEIPT_DESTINATION) { backStackStrategy ->
+                Text(text = "Receipt")
             }
         }
     }
@@ -115,6 +117,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val TIP_CALCULATION_DESTINATION = "tipCalculation"
         const val TIP_HISTORY_DESTINATION = "history"
-
+        const val RECEIPT_DESTINATION = "receipt"
     }
 }

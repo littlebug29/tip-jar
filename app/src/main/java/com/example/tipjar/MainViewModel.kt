@@ -3,15 +3,15 @@ package com.example.tipjar
 import android.app.Application
 import android.icu.text.DecimalFormat
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tipjar.database.entity.TipHistory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,7 +36,11 @@ class MainViewModel @Inject constructor(
         if (people == 0) 0.0 else totalTip.value / people
     }
     val perPersonString = derivedStateOf { moneyFormat.format(perPerson.value) }
+
     val savedPayments = repository.allTipHistories
+
+    private val mutableSelectedTipHistory = MutableStateFlow<TipHistory?>(null)
+    val selectedTipHistory: StateFlow<TipHistory?> = mutableSelectedTipHistory
 
     fun savePayment(photoUri: String?) {
         val timestamp = currentTimeInMillis()
@@ -49,5 +53,9 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             repository.insert(tipHistory)
         }
+    }
+
+    fun selectTipHistory(tipHistory: TipHistory) {
+        mutableSelectedTipHistory.value = tipHistory
     }
 }
