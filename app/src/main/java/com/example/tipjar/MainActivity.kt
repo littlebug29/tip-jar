@@ -10,7 +10,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.material3.Text
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +25,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.tipjar.ui.ReceiptScreen
 import com.example.tipjar.ui.TipCalculationScreen
 import com.example.tipjar.ui.TipHistoryScreen
 import com.example.tipjar.ui.TipJarTheme
@@ -70,7 +71,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
         NavHost(navController = navController, startDestination = TIP_CALCULATION_DESTINATION) {
-            composable(TIP_CALCULATION_DESTINATION) {
+            composable(
+                route = TIP_CALCULATION_DESTINATION,
+                enterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500)) },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500)) },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(500)) },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(500)) }
+
+            ) {
                 TipCalculationScreen(
                     navController = navController,
                     viewModel = viewModel,
@@ -99,11 +107,14 @@ class MainActivity : AppCompatActivity() {
                     }
                 )
             }
-            composable(TIP_HISTORY_DESTINATION) {
+            composable(
+                route = TIP_HISTORY_DESTINATION,
+                enterTransition = { slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(500)) },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(500)) },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500)) },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500)) }
+            ) {
                 TipHistoryScreen(navController = navController, viewModel = viewModel)
-            }
-            composable(RECEIPT_DESTINATION) { backStackStrategy ->
-                Text(text = "Receipt")
             }
         }
     }
@@ -117,6 +128,5 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val TIP_CALCULATION_DESTINATION = "tipCalculation"
         const val TIP_HISTORY_DESTINATION = "history"
-        const val RECEIPT_DESTINATION = "receipt"
     }
 }

@@ -5,9 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -121,21 +119,22 @@ fun TipCalculationScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            PeopleAdjustmentButton(viewModel)
+            PeopleAdjustmentBox(viewModel)
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             CustomOutlineTextField(
                 label = "% TIP",
                 value = tipPercent.toString(),
                 trailingLabel = "%",
+                visualTransformation = NumberTransformation(0, 100),
                 onValueChange = {
                     viewModel.tipPercent.intValue = it.toIntOrNull() ?: 0
                 })
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             SummaryTipInfoView(viewModel)
 
@@ -143,7 +142,7 @@ fun TipCalculationScreen(
 
             TakePhotoCheckBox(shouldTakePhoto, onCheckChange)
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = onSavePaymentClick,
@@ -175,7 +174,7 @@ fun TipCalculationScreen(
 }
 
 @Composable
-fun PeopleAdjustmentButton(
+fun PeopleAdjustmentBox(
     viewModel: MainViewModel
 ) {
     val people by viewModel.people
@@ -184,9 +183,11 @@ fun PeopleAdjustmentButton(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Text(text = "How many people?", style = MaterialTheme.typography.titleMedium)
-
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "How many people?",
+            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -233,7 +234,7 @@ fun SummaryTipInfoView(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "Total Tip", fontSize = 16.sp)
+            Text(text = "Total Tip", fontSize = 16.sp, fontWeight = FontWeight.Medium)
             Text(text = "$$totalTip", fontSize = 16.sp, fontWeight = FontWeight.Medium)
         }
 
@@ -243,8 +244,8 @@ fun SummaryTipInfoView(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "Per Person", fontSize = 24.sp)
-            Text(text = "$$perPerson", fontSize = 24.sp, fontWeight = FontWeight.Medium)
+            Text(text = "Per Person", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(text = "$$perPerson", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -283,7 +284,7 @@ fun TakePhotoCheckBox(
                 text = "Take photo of receipt",
                 fontSize = 16.sp,
                 color = Color.Black,
-                style = TextStyle(fontWeight = FontWeight.Bold)
+                style = TextStyle(fontWeight = FontWeight.Medium)
             )
         }
     }
@@ -300,9 +301,14 @@ fun CustomOutlineTextField(
     onValueChange: (String) -> Unit,
 ) {
     Column(modifier = modifier) {
-        Text(label, style = MaterialTheme.typography.titleMedium) // Label
+        Text(
+            text = label,
+            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium),
+            color = Color.Black
+        )
+        // Label
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = value,
