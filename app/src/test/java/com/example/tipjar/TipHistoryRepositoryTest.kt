@@ -38,7 +38,7 @@ class TipHistoryRepositoryTest {
     fun insertTipHistory() = runBlocking {
         val tipHistory =
             TipHistory(timestamp = System.currentTimeMillis(), amount = 100.0, tip = 15.0)
-        repository.insert(tipHistory)
+        repository.saveTip(tipHistory)
 
         val allTipHistories = repository.allTipHistories.first()
         assertEquals(1, allTipHistories.size)
@@ -51,8 +51,8 @@ class TipHistoryRepositoryTest {
             TipHistory(timestamp = System.currentTimeMillis(), amount = 100.0, tip = 15.0)
         val tipHistory2 =
             TipHistory(timestamp = System.currentTimeMillis() + 1, amount = 200.0, tip = 30.0)
-        repository.insert(tipHistory1)
-        repository.insert(tipHistory2)
+        repository.saveTip(tipHistory1)
+        repository.saveTip(tipHistory2)
 
         val allTipHistories = repository.allTipHistories.first()
         assertEquals(2, allTipHistories.size)

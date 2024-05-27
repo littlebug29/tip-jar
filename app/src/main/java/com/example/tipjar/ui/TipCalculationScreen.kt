@@ -2,6 +2,7 @@ package com.example.tipjar.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,15 +15,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -51,6 +54,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.tipjar.MainActivity
 import com.example.tipjar.MainViewModel
@@ -97,80 +101,119 @@ fun TipCalculationScreen(
     ) { paddingValues ->
         val amount by viewModel.amount
         val tipPercent by viewModel.tipPercent
+        val enableSave by viewModel.savePaymentStatus
         val scrollState = rememberScrollState()
+
+        TipCalculationContent(
+            modifier = Modifier.padding(paddingValues),
+            scrollState = scrollState,
+            amount = amount,
+            tipPercent = tipPercent,
+            enableSave = enableSave,
+            viewModel = viewModel,
+            shouldTakePhoto = shouldTakePhoto,
+            onCheckChange = onCheckChange,
+            onSavePaymentClick = onSavePaymentClick
+        )
+    }
+}
+
+@Composable
+fun TipCalculationContent(
+    modifier: Modifier,
+    scrollState: ScrollState,
+    amount: String,
+    tipPercent: Int,
+    enableSave: Boolean,
+    viewModel: MainViewModel,
+    shouldTakePhoto: Boolean,
+    onCheckChange: (Boolean) -> Unit,
+    onSavePaymentClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(horizontal = 24.dp)
+            .verticalScroll(scrollState)
+    ) {
+        Spacer(modifier = Modifier.height(32.dp))
+
+        CustomOutlineTextField(
+            modifier = Modifier.fillMaxWidth(),
+            label = "Enter amount",
+            value = amount,
+            leadingLabel = "$",
+            visualTransformation = MoneyTransformation(),
+            onValueChange = {
+                viewModel.amount.value = cleanAmountInput(it)
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PeopleAdjustmentBox(viewModel)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomOutlineTextField(
+            label = "% TIP",
+            value = tipPercent.toString(),
+            trailingLabel = "%",
+            visualTransformation = NumberTransformation(0, 100),
+            onValueChange = {
+                viewModel.tipPercent.intValue = it.toIntOrNull() ?: 0
+            })
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        SummaryTipInfoView(viewModel)
+
+        Spacer(modifier = Modifier.height(82.dp))
+
+        TakePhotoCheckBox(shouldTakePhoto, onCheckChange)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onSavePaymentClick,
+            enabled = enableSave,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = "#F27A0A".toColor(),
+                contentColor = "#F27A0A".toColor(),
+                disabledContentColor = Color.Gray,
+                disabledContainerColor = Color.Gray
+            ),
+            shape = RoundedCornerShape(12.dp),
+            interactionSource = remember { MutableInteractionSource() },
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp)
+        ) {
+            Text(text = "Save payment", color = Color.White, fontSize = 18.sp)
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProgressDialog() {
+    BasicAlertDialog(
+        onDismissRequest = {},
+        properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false),
+    ) {
         Column(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .background(Color.White)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(scrollState)
+                .wrapContentSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
-
-            CustomOutlineTextField(
-                modifier = Modifier.fillMaxWidth(),
-                label = "Enter amount",
-                value = amount,
-                leadingLabel = "$",
-                visualTransformation = MoneyTransformation(),
-                onValueChange = {
-                    viewModel.amount.value = cleanAmountInput(it)
-                }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PeopleAdjustmentBox(viewModel)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            CustomOutlineTextField(
-                label = "% TIP",
-                value = tipPercent.toString(),
-                trailingLabel = "%",
-                visualTransformation = NumberTransformation(0, 100),
-                onValueChange = {
-                    viewModel.tipPercent.intValue = it.toIntOrNull() ?: 0
-                })
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SummaryTipInfoView(viewModel)
-
-            Spacer(modifier = Modifier.height(82.dp))
-
-            TakePhotoCheckBox(shouldTakePhoto, onCheckChange)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = onSavePaymentClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.linearGradient(
-                            listOf(
-                                "#F27A0A".toColor(),
-                                "#D26E11".toColor()
-                            )
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    ),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(12.dp),
-                interactionSource = remember { MutableInteractionSource() },
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
-            ) {
-                Text(text = "Save payment", color = Color.White, fontSize = 18.sp)
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
+            CircularProgressIndicator()
         }
     }
-
 }
 
 @Composable

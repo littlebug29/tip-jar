@@ -65,7 +65,7 @@ class MainViewModelTest {
             photoUri = null
         )
 
-        verify(repository).insert(expectedTipHistory)
+        verify(repository).saveTip(expectedTipHistory)
     }
 
     @Test

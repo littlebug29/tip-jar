@@ -26,16 +26,23 @@ class MainViewModel @Inject constructor(
     var amount = mutableStateOf("")
     var people = mutableIntStateOf(0)
     var tipPercent = mutableIntStateOf(0)
+
     private var totalTip = derivedStateOf {
         val amountDouble: Double = amount.value.toDoubleOrNull() ?: 0.0
         amountDouble * tipPercent.intValue / 100
     }
     val totalTipString = derivedStateOf { moneyFormat.format(totalTip.value) }
+
     private var perPerson = derivedStateOf {
         val people = people.intValue
         if (people == 0) 0.0 else totalTip.value / people
     }
     val perPersonString = derivedStateOf { moneyFormat.format(perPerson.value) }
+
+    val savePaymentStatus = derivedStateOf {
+        val amountValue = amount.value.toDoubleOrNull() ?: 0.0
+        amountValue > 0
+    }
 
     val savedPayments = repository.allTipHistories
 
@@ -51,9 +58,10 @@ class MainViewModel @Inject constructor(
             photoUri = photoUri
         )
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insert(tipHistory)
+            repository.saveTip(tipHistory)
         }
     }
+
 
     fun selectTipHistory(tipHistory: TipHistory) {
         mutableSelectedTipHistory.value = tipHistory

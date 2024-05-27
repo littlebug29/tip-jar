@@ -9,7 +9,7 @@ class TipHistoryRepository(
 ) {
     val allTipHistories: Flow<List<TipHistory>> = tipHistoryDao.getAllTipHistories()
 
-    suspend fun insert(tipHistory: TipHistory) {
+    suspend fun saveTip(tipHistory: TipHistory) {
         tipHistoryDao.insert(tipHistory)
     }
 }

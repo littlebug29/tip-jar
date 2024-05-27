@@ -56,7 +56,6 @@ class MainActivity : AppCompatActivity() {
             rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
                 if (success) {
                     viewModel.savePayment(imageUri.toString())
-                    navController.navigate(TIP_HISTORY_DESTINATION)
                 }
             }
         val cameraPermissionLauncher = rememberLauncherForActivityResult(
@@ -73,10 +72,30 @@ class MainActivity : AppCompatActivity() {
         NavHost(navController = navController, startDestination = TIP_CALCULATION_DESTINATION) {
             composable(
                 route = TIP_CALCULATION_DESTINATION,
-                enterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500, delayMillis = 100)) },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500, delayMillis = 100)) },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500, delayMillis = 100)) },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500, delayMillis = 100)) }
+                enterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { -1000 },
+                        animationSpec = tween(200)
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { 1000 },
+                        animationSpec = tween(200)
+                    )
+                },
+                popEnterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { -1000 },
+                        animationSpec = tween(200)
+                    )
+                },
+                popExitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { 1000 },
+                        animationSpec = tween(200)
+                    )
+                }
 
             ) {
                 TipCalculationScreen(
@@ -86,11 +105,11 @@ class MainActivity : AppCompatActivity() {
                     onCheckChange = { shouldTakePhoto = it },
                     onSavePaymentClick = {
                         if (shouldTakePhoto) {
-                            when (PackageManager.PERMISSION_GRANTED) {
-                                ContextCompat.checkSelfPermission(
-                                    context,
-                                    android.Manifest.permission.CAMERA
-                                ) -> {
+                            when (ContextCompat.checkSelfPermission(
+                                context,
+                                android.Manifest.permission.CAMERA
+                            )) {
+                                PackageManager.PERMISSION_GRANTED -> {
                                     val uri = createImageUri(context)
                                     imageUri = uri
                                     cameraLauncher.launch(uri)
@@ -101,18 +120,37 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         } else {
-                            viewModel.savePayment(null)
-                            navController.navigate("history")
+                            viewModel.savePayment(imageUri.toString())
                         }
                     }
                 )
             }
             composable(
                 route = TIP_HISTORY_DESTINATION,
-                enterTransition = { slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(500, delayMillis = 100)) },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(500, delayMillis = 100)) },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500, delayMillis = 100)) },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500, delayMillis = 100)) }
+                enterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { 1000 },
+                        animationSpec = tween(200)
+                    )
+                },
+                exitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { -1000 },
+                        animationSpec = tween(200)
+                    )
+                },
+                popEnterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { -1000 },
+                        animationSpec = tween(200)
+                    )
+                },
+                popExitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { 1000 },
+                        animationSpec = tween(200)
+                    )
+                }
             ) {
                 TipHistoryScreen(navController = navController, viewModel = viewModel)
             }
