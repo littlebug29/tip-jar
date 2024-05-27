@@ -73,10 +73,10 @@ class MainActivity : AppCompatActivity() {
         NavHost(navController = navController, startDestination = TIP_CALCULATION_DESTINATION) {
             composable(
                 route = TIP_CALCULATION_DESTINATION,
-                enterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500)) },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500)) },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(500)) },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(500)) }
+                enterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500, delayMillis = 100)) },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500, delayMillis = 100)) },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500, delayMillis = 100)) },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500, delayMillis = 100)) }
 
             ) {
                 TipCalculationScreen(
@@ -109,10 +109,10 @@ class MainActivity : AppCompatActivity() {
             }
             composable(
                 route = TIP_HISTORY_DESTINATION,
-                enterTransition = { slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(500)) },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(500)) },
-                popEnterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500)) },
-                popExitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500)) }
+                enterTransition = { slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(500, delayMillis = 100)) },
+                exitTransition = { slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(500, delayMillis = 100)) },
+                popEnterTransition = { slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(500, delayMillis = 100)) },
+                popExitTransition = { slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(500, delayMillis = 100)) }
             ) {
                 TipHistoryScreen(navController = navController, viewModel = viewModel)
             }
