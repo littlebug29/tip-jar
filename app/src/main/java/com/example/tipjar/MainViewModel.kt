@@ -6,6 +6,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tipjar.database.entity.TipHistory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,6 +46,8 @@ class MainViewModel @Inject constructor(
     }
 
     val savedPayments = repository.allTipHistories
+    private val mutableSearchTipHistories = MutableLiveData<List<TipHistory>>()
+    val searchTipHistories = mutableSearchTipHistories
 
     private val mutableSelectedTipHistory = MutableStateFlow<TipHistory?>(null)
     val selectedTipHistory: StateFlow<TipHistory?> = mutableSelectedTipHistory
@@ -65,5 +68,13 @@ class MainViewModel @Inject constructor(
 
     fun selectTipHistory(tipHistory: TipHistory) {
         mutableSelectedTipHistory.value = tipHistory
+    }
+
+    fun searchTipHistories(startTime: Long, endTime: Long) {
+        viewModelScope.launch {
+            repository.searchTipHistories(startTime, endTime).collect { histories ->
+                mutableSearchTipHistories.value = histories
+            }
+        }
     }
 }

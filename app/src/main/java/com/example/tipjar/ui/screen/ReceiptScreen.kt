@@ -1,4 +1,4 @@
-package com.example.tipjar.ui
+package com.example.tipjar.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.rememberAsyncImagePainter
 import com.example.tipjar.database.entity.TipHistory
+import com.example.tipjar.ui.util.toColor
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

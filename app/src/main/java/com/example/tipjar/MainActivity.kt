@@ -1,5 +1,6 @@
 package com.example.tipjar
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -25,9 +26,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.tipjar.ui.TipCalculationScreen
-import com.example.tipjar.ui.TipHistoryScreen
 import com.example.tipjar.ui.TipJarTheme
+import com.example.tipjar.ui.screen.TipCalculationScreen
+import com.example.tipjar.ui.screen.TipHistoryScreen
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 
@@ -107,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                         if (shouldTakePhoto) {
                             when (ContextCompat.checkSelfPermission(
                                 context,
-                                android.Manifest.permission.CAMERA
+                                Manifest.permission.CAMERA
                             )) {
                                 PackageManager.PERMISSION_GRANTED -> {
                                     val uri = createImageUri(context)
@@ -116,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                                 }
 
                                 else -> {
-                                    cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                                 }
                             }
                         } else {

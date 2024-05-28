@@ -1,4 +1,4 @@
-package com.example.tipjar.ui
+package com.example.tipjar.ui.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource

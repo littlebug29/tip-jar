@@ -12,4 +12,7 @@ class TipHistoryRepository(
     suspend fun saveTip(tipHistory: TipHistory) {
         tipHistoryDao.insert(tipHistory)
     }
+
+    suspend fun searchTipHistories(startTime: Long, endTime: Long): Flow<List<TipHistory>> =
+        tipHistoryDao.searchTipHistories(startTime, endTime)
 }

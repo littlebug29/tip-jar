@@ -1,4 +1,4 @@
-package com.example.tipjar.ui
+package com.example.tipjar.ui.util
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping
