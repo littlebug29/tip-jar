@@ -43,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -175,44 +176,17 @@ fun TipCalculationContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = onSavePaymentClick,
-            enabled = enableSave,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = "#F27A0A".toColor(),
-                contentColor = "#F27A0A".toColor(),
-                disabledContentColor = Color.Gray,
-                disabledContainerColor = Color.Gray
-            ),
-            shape = RoundedCornerShape(12.dp),
-            interactionSource = remember { MutableInteractionSource() },
-            elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp)
-        ) {
-            Text(text = "Save payment", color = Color.White, fontSize = 18.sp)
-        }
+        GradientRoundedButton(
+            text = "Save Payment",
+            enable = enableSave,
+            enabledGradient = Brush.linearGradient(listOf("#F27A0A".toColor(),"#F27A0A".toColor())),
+            disabledGradient = Brush.linearGradient(listOf(Color.Gray, Color.Gray)),
+            radius = 12.dp,
+            textStyle = TextStyle(fontSize = 18.sp),
+          onClick = onSavePaymentClick
+        )
 
         Spacer(modifier = Modifier.height(28.dp))
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProgressDialog() {
-    BasicAlertDialog(
-        onDismissRequest = {},
-        properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false),
-    ) {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            CircularProgressIndicator()
-        }
     }
 }
 
