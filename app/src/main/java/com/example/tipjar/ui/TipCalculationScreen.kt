@@ -61,7 +61,6 @@ import com.example.tipjar.MainActivity
 import com.example.tipjar.MainViewModel
 import com.example.tipjar.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TipCalculationScreen(
     navController: NavController,
@@ -72,32 +71,7 @@ fun TipCalculationScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Spacer(modifier = Modifier.width(24.dp)) // Placeholder for symmetry
-                        Image(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_logo),
-                            contentDescription = "Logo",
-                            modifier = Modifier
-                                .width(114.dp)
-                                .height(29.dp)
-                        )
-                        IconButton(
-                            onClick = { navController.navigate(MainActivity.TIP_HISTORY_DESTINATION) }
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_history),
-                                contentDescription = "History"
-                            )
-                        }
-                    }
-                }
-            )
+            Header(navController = navController)
         }
     ) { paddingValues ->
         val amount by viewModel.amount
@@ -117,6 +91,37 @@ fun TipCalculationScreen(
             onSavePaymentClick = onSavePaymentClick
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Header(navController: NavController) {
+    TopAppBar(
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.width(24.dp)) // Placeholder for symmetry
+                Image(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_logo),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .width(114.dp)
+                        .height(29.dp)
+                )
+                IconButton(
+                    onClick = { navController.navigate(MainActivity.TIP_HISTORY_DESTINATION) }
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_history),
+                        contentDescription = "History"
+                    )
+                }
+            }
+        }
+    )
 }
 
 @Composable
