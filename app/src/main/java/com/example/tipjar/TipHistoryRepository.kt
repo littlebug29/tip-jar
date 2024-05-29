@@ -2,17 +2,20 @@ package com.example.tipjar
 
 import com.example.tipjar.database.dao.TipHistoryDao
 import com.example.tipjar.database.entity.TipHistory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 
 class TipHistoryRepository(
     private val tipHistoryDao: TipHistoryDao
 ) {
-    val allTipHistories: Flow<List<TipHistory>> = tipHistoryDao.getAllTipHistories()
+    val allTipHistories: Flow<List<TipHistory>> =
+        tipHistoryDao.getAllTipHistories().flowOn(Dispatchers.IO)
 
     suspend fun saveTip(tipHistory: TipHistory) {
         tipHistoryDao.insert(tipHistory)
     }
 
-    suspend fun searchTipHistories(startTime: Long, endTime: Long): Flow<List<TipHistory>> =
-        tipHistoryDao.searchTipHistories(startTime, endTime)
+    fun searchTipHistories(startTime: Long, endTime: Long): Flow<List<TipHistory>> =
+        tipHistoryDao.searchTipHistories(startTime, endTime).flowOn(Dispatchers.IO)
 }

@@ -7,8 +7,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -70,7 +68,7 @@ class MainViewModelTest {
 
     @Test
     fun loadTipHistories_initiallyEmpty() = runTest {
-        val historyList = viewModel.savedPayments.lastOrNull()
+        val historyList = viewModel.tipHistories.value
         assertThat(historyList).isEmpty()
     }
 
@@ -92,6 +90,6 @@ class MainViewModelTest {
 
         viewModel = MainViewModel(getApplicationContext(), repository) { fixedTimestamp }
 
-        assertThat(viewModel.savedPayments.last()).containsExactly(tipHistory1, tipHistory2)
+        assertThat(viewModel.tipHistories.value).containsExactly(tipHistory1, tipHistory2)
     }
 }

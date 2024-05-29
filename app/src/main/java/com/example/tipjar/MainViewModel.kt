@@ -2,11 +2,11 @@ package com.example.tipjar
 
 import android.app.Application
 import android.icu.text.DecimalFormat
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tipjar.database.entity.TipHistory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,12 +45,19 @@ class MainViewModel @Inject constructor(
         amountValue > 0
     }
 
-    val savedPayments = repository.allTipHistories
-    private val mutableSearchTipHistories = MutableLiveData<List<TipHistory>>()
-    val searchTipHistories = mutableSearchTipHistories
+    private val mutableTipHistories = mutableStateOf<List<TipHistory>>(emptyList())
+    val tipHistories: State<List<TipHistory>> = mutableTipHistories
 
     private val mutableSelectedTipHistory = MutableStateFlow<TipHistory?>(null)
     val selectedTipHistory: StateFlow<TipHistory?> = mutableSelectedTipHistory
+
+    fun loadAllTipHistories() {
+        viewModelScope.launch {
+            repository.allTipHistories.collect { allTipHistories ->
+                mutableTipHistories.value = allTipHistories
+            }
+        }
+    }
 
     fun savePayment(photoUri: String?) {
         val timestamp = currentTimeInMillis()
@@ -73,7 +80,7 @@ class MainViewModel @Inject constructor(
     fun searchTipHistories(startTime: Long, endTime: Long) {
         viewModelScope.launch {
             repository.searchTipHistories(startTime, endTime).collect { histories ->
-                mutableSearchTipHistories.value = histories
+                mutableTipHistories.value = histories
             }
         }
     }

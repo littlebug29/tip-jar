@@ -5,6 +5,7 @@ import android.icu.util.Calendar
 import android.widget.DatePicker
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -40,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -74,9 +74,13 @@ fun TipHistoryScreen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    val allTipHistories by viewModel.savedPayments.collectAsState(emptyList())
-    val searchedTipHistories by viewModel.searchTipHistories.observeAsState(emptyList())
+    val tipHistories by viewModel.tipHistories
     var showSearchFields by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadAllTipHistories()
+    }
+
     Scaffold(
         topBar = {
             HistoryHeader(
@@ -85,6 +89,9 @@ fun TipHistoryScreen(
                 viewModel = viewModel,
                 onSearchClick = {
                     showSearchFields = !showSearchFields
+                    if (!showSearchFields) {
+                        viewModel.loadAllTipHistories()
+                    }
                 }
             )
         }
@@ -97,24 +104,13 @@ fun TipHistoryScreen(
         ) {
             HorizontalDivider(color = "#EBEBEB".toColor(), thickness = 1.dp)
             Spacer(modifier = Modifier.height(8.dp))
-            val label =
-                if (showSearchFields) {
-                    "Search Results:"
-                } else {
-                    "All Tip Histories"
-                }
-            val tipHistories = if (showSearchFields && searchedTipHistories.isNotEmpty()) {
-                searchedTipHistories
-            } else {
-                allTipHistories
-            }
+            val label = if (showSearchFields) "Search Results:" else "All Tip Histories"
             Text(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp),
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                 text = label,
                 style = MaterialTheme.typography.titleMedium
             )
-            if (showSearchFields && searchedTipHistories.isEmpty()) {
+            if (showSearchFields && tipHistories.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(text = "Not found")
                 }
@@ -167,8 +163,8 @@ fun HistoryHeader(
         )
         AnimatedVisibility(
             visible = showSearchFields,
-            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { -it })
+            enter = slideInVertically(initialOffsetY = { 0 }) + fadeIn(),
+            exit = fadeOut() + slideOutVertically(targetOffsetY = { 0 })
         ) {
             SearchBox(viewModel = viewModel)
         }

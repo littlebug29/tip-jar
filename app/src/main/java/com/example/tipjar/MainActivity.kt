@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
             rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
                 if (success) {
                     viewModel.savePayment(imageUri.toString())
+                    navController.navigate(TIP_HISTORY_DESTINATION)
                 }
             }
         val cameraPermissionLauncher = rememberLauncherForActivityResult(
@@ -122,6 +123,7 @@ class MainActivity : AppCompatActivity() {
                             }
                         } else {
                             viewModel.savePayment(imageUri.toString())
+                            navController.navigate(TIP_HISTORY_DESTINATION)
                         }
                     }
                 )

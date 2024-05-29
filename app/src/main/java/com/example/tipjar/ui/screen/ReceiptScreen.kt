@@ -59,7 +59,7 @@ fun ReceiptDialog(payment: TipHistory, onDismiss: () -> Unit) {
                 .fillMaxSize()
                 .background("#00000099".toColor())
                 .clickable(
-                    interactionSource = MutableInteractionSource(),
+                    interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = { onDismiss() }
                 )
