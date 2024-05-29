@@ -5,6 +5,7 @@ import com.example.tipjar.database.entity.TipHistory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 
 class TipHistoryRepository(
     private val tipHistoryDao: TipHistoryDao
@@ -18,4 +19,8 @@ class TipHistoryRepository(
 
     fun searchTipHistories(startTime: Long, endTime: Long): Flow<List<TipHistory>> =
         tipHistoryDao.searchTipHistories(startTime, endTime).flowOn(Dispatchers.IO)
+
+    suspend fun deleteTipHistory(tipHistory: TipHistory) = withContext(Dispatchers.IO) {
+        tipHistoryDao.delete(tipHistory)
+    }
 }

@@ -84,4 +84,10 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteTipHistory(tipHistory: TipHistory) {
+        viewModelScope.launch {
+            repository.deleteTipHistory(tipHistory)
+        }
+    }
 }

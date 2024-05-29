@@ -1,6 +1,7 @@
 package com.example.tipjar.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.tipjar.database.entity.TipHistory
@@ -16,4 +17,7 @@ interface TipHistoryDao {
 
     @Query("SELECT * FROM tip_history WHERE timestamp BETWEEN :startTime AND :endTime ORDER BY timestamp DESC")
     fun searchTipHistories(startTime: Long, endTime: Long): Flow<List<TipHistory>>
+
+    @Delete
+    suspend fun delete(tipHistory: TipHistory)
 }

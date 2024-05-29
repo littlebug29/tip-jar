@@ -11,6 +11,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +30,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
@@ -57,6 +63,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -65,6 +72,7 @@ import com.example.tipjar.MainViewModel
 import com.example.tipjar.R
 import com.example.tipjar.database.entity.TipHistory
 import com.example.tipjar.ui.util.toColor
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -76,9 +84,12 @@ fun TipHistoryScreen(
 ) {
     val tipHistories by viewModel.tipHistories
     var showSearchFields by remember { mutableStateOf(false) }
+    var showProgress by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
+        delay(300)
         viewModel.loadAllTipHistories()
+        showProgress = false
     }
 
     Scaffold(
@@ -96,27 +107,24 @@ fun TipHistoryScreen(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Color.White)
-        ) {
-            HorizontalDivider(color = "#EBEBEB".toColor(), thickness = 1.dp)
-            Spacer(modifier = Modifier.height(8.dp))
-            val label = if (showSearchFields) "Search Results:" else "All Tip Histories"
-            Text(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp),
-                text = label,
-                style = MaterialTheme.typography.titleMedium
-            )
-            if (showSearchFields && tipHistories.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "Not found")
-                }
-            } else {
-                HistoryList(histories = tipHistories, viewModel)
+        if (showProgress) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(strokeWidth = 2.dp)
             }
+        } else {
+            HistoryContent(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                showSearchFields = showSearchFields,
+                tipHistories = tipHistories,
+                viewModel = viewModel
+            )
         }
 
     }
@@ -241,6 +249,34 @@ fun SearchBox(viewModel: MainViewModel) {
 }
 
 @Composable
+fun HistoryContent(
+    modifier: Modifier,
+    showSearchFields: Boolean,
+    tipHistories: List<TipHistory>,
+    viewModel: MainViewModel
+) {
+    Column(
+        modifier = modifier.background(Color.White)
+    ) {
+        HorizontalDivider(color = "#EBEBEB".toColor(), thickness = 1.dp)
+        Spacer(modifier = Modifier.height(8.dp))
+        val label = if (showSearchFields) "Search Results:" else "All Tip Histories"
+        Text(
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+            text = label,
+            style = MaterialTheme.typography.titleMedium
+        )
+        if (showSearchFields && tipHistories.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = "Not found")
+            }
+        } else {
+            HistoryList(histories = tipHistories, viewModel)
+        }
+    }
+}
+
+@Composable
 fun HistoryList(
     histories: List<TipHistory>,
     viewModel: MainViewModel,
@@ -248,10 +284,16 @@ fun HistoryList(
     var showReceiptDialog by remember { mutableStateOf(false) }
     LazyColumn {
         items(histories) { payment ->
-            TipHistoryItem(payment) {
-                viewModel.selectTipHistory(payment)
-                showReceiptDialog = true
-            }
+            TipHistoryItem(
+                payment = payment,
+                onClick = {
+                    viewModel.selectTipHistory(payment)
+                    showReceiptDialog = true
+                },
+                onConfirm = {
+                    viewModel.deleteTipHistory(payment)
+                }
+            )
         }
     }
     if (showReceiptDialog) {
@@ -264,49 +306,126 @@ fun HistoryList(
 @Composable
 fun TipHistoryItem(
     payment: TipHistory,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onConfirm: () -> Unit
 ) {
     val date = Date(payment.timestamp)
     val format = SimpleDateFormat("yyyy MMMM dd", Locale.getDefault())
     val dateString = format.format(date)
 
-    Row(
+    var offsetX by remember { mutableStateOf(0f) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Tip History") },
+            text = { Text("Are you sure you want to delete this tip history?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onConfirm()
+                        offsetX = 0f
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp))
-            .clickable {
-                onClick()
-            },
-        verticalAlignment = Alignment.CenterVertically
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures { change, dragAmount ->
+                    change.consume()
+                    offsetX += dragAmount
+                    if (offsetX > 0) offsetX = 0f
+                    if (offsetX < -200f) offsetX = -200f
+                }
+            }
+            .background(Color.White)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = dateString,
-                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal),
-                color = Color.Black
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset { IntOffset(offsetX.toInt(), 0) }
+                .padding(PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp))
+                .clickable { onClick() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PaymentInfoArea(
+                modifier = Modifier.weight(1f),
+                date = dateString,
+                amount = payment.amount,
+                tip = payment.tip
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "$${payment.amount}",
-                    style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Tip: $${payment.tip}",
-                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal),
-                    color = Color.Gray
+            if (payment.photoUri != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(payment.photoUri),
+                    contentDescription = "Receipt Photo",
+                    modifier = Modifier
+                        .size(53.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop
                 )
             }
         }
-        if (payment.photoUri != null) {
-            Image(
-                painter = rememberAsyncImagePainter(payment.photoUri),
-                contentDescription = "Receipt Photo",
+        if (offsetX < -100f) {
+            Box(
                 modifier = Modifier
-                    .size(53.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
+                    .height(53.dp)
+                    .align(Alignment.BottomEnd)
+                    .background(Color.Red)
+                    .width(80.dp)
+                    .clickable {
+                        showDeleteDialog = true
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Delete",
+                    color = Color.White,
+                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PaymentInfoArea(
+    modifier: Modifier,
+    date: String,
+    amount: Double,
+    tip: Double
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = date,
+            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal),
+            color = Color.Black
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "$$amount",
+                style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Tip: $$tip",
+                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Normal),
+                color = Color.Gray
             )
         }
     }
