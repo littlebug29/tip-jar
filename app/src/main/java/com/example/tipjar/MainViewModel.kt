@@ -53,7 +53,7 @@ class MainViewModel @Inject constructor(
 
     fun loadAllTipHistories() {
         viewModelScope.launch {
-            repository.allTipHistories.collect { allTipHistories ->
+            repository.getAllTipHistories().collect { allTipHistories ->
                 mutableTipHistories.value = allTipHistories
             }
         }

@@ -39,7 +39,7 @@ class MainViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        `when`(repository.allTipHistories).thenReturn(flowOf(emptyList()))
+        `when`(repository.getAllTipHistories()).thenReturn(flowOf(emptyList()))
         viewModel = MainViewModel(getApplicationContext(), repository) { fixedTimestamp }
     }
 
@@ -86,7 +86,7 @@ class MainViewModelTest {
             tip = 10.0,
             photoUri = null
         )
-        `when`(repository.allTipHistories).thenReturn(flowOf(listOf(tipHistory1, tipHistory2)))
+        `when`(repository.getAllTipHistories()).thenReturn(flowOf(listOf(tipHistory1, tipHistory2)))
 
         viewModel = MainViewModel(getApplicationContext(), repository) { fixedTimestamp }
 

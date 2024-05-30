@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.tipjar.database.TipDatabase
 import com.example.tipjar.database.entity.TipHistory
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.*
@@ -71,5 +72,16 @@ class TipHistoryDaoTest {
         val allTipHistories = tipHistoryDao.getAllTipHistories().first()
         val retrievedTipHistory = allTipHistories.first { it.timestamp == fixedTimestamp + 1 }
         Assert.assertEquals(retrievedTipHistory, tipHistory2)
+    }
+
+    @Test
+    fun deleteTipHistory() = runBlocking {
+        val tipHistory = TipHistory(timestamp = fixedTimestamp, amount = 100.0, tip = 10.0, photoUri = "test_uri")
+        tipHistoryDao.insert(tipHistory)
+
+        tipHistoryDao.delete(tipHistory)
+        val allTipHistories = tipHistoryDao.getAllTipHistories().first()
+
+        assertThat(allTipHistories).doesNotContain(tipHistory)
     }
 }
