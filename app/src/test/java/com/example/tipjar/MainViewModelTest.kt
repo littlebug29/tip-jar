@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,10 +50,33 @@ class MainViewModelTest {
     }
 
     @Test
+    fun updateAmount_Success() {
+        viewModel.updateAmount("1,123.45")
+        assertEquals("1123.45", viewModel.amount.value)
+    }
+
+    @Test
+    fun updateTipPercent_Success() {
+        viewModel.updateTipPercent("15")
+        assertEquals(15, viewModel.tipPercent.value)
+    }
+
+    @Test
+    fun updatePeople_NonNegative() {
+        viewModel.updatePeople(true)
+        assertEquals(1, viewModel.people.value)
+        viewModel.updatePeople(false)
+        assertEquals(0, viewModel.people.value)
+        // Never be negative
+        viewModel.updatePeople(false)
+        assertEquals(0, viewModel.people.value)
+    }
+
+    @Test
     fun savePayment_addsPaymentToRepository() = runTest {
-        viewModel.amount.value = "200.0"
-        viewModel.tipPercent.intValue = 10
-        viewModel.people.intValue = 4
+        viewModel.updateAmount("200.0")
+        viewModel.updateTipPercent("10")
+        viewModel.updatePeople(true)
 
         viewModel.savePayment(null)
 
@@ -89,6 +113,7 @@ class MainViewModelTest {
         `when`(repository.getAllTipHistories()).thenReturn(flowOf(listOf(tipHistory1, tipHistory2)))
 
         viewModel = MainViewModel(getApplicationContext(), repository) { fixedTimestamp }
+        viewModel.loadAllTipHistories()
 
         assertThat(viewModel.tipHistories.value).containsExactly(tipHistory1, tipHistory2)
     }
