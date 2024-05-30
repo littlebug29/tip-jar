@@ -148,7 +148,7 @@ fun TipCalculationContent(
             leadingLabel = "$",
             visualTransformation = MoneyTransformation(),
             onValueChange = {
-                viewModel.amount.value = cleanAmountInput(it)
+                viewModel.updateAmount(it)
             }
         )
 
@@ -164,7 +164,7 @@ fun TipCalculationContent(
             trailingLabel = "%",
             visualTransformation = NumberTransformation(0, 100),
             onValueChange = {
-                viewModel.tipPercent.intValue = it.toIntOrNull() ?: 0
+                viewModel.updateTipPercent(it)
             })
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -216,7 +216,7 @@ fun PeopleAdjustmentBox(
                 modifier = Modifier.size(71.dp),
                 shape = CircleShape,
                 border = BorderStroke(1.dp, Color(0xFFD2D2D2)),
-                onClick = { if (people >= 1) viewModel.people.intValue-- }
+                onClick = { viewModel.updatePeople(isIncreasing = false) }
             ) {
                 Text(text = "-", fontSize = 24.sp)
             }
@@ -227,9 +227,7 @@ fun PeopleAdjustmentBox(
                 modifier = Modifier.size(71.dp),
                 shape = CircleShape,
                 border = BorderStroke(1.dp, Color(0xFFD2D2D2)),
-                onClick = {
-                    viewModel.people.intValue++
-                }
+                onClick = { viewModel.updatePeople(isIncreasing = true) }
             ) {
                 Text(text = "+", fontSize = 24.sp)
             }
@@ -323,8 +321,7 @@ fun CustomOutlineTextField(
             text = label,
             style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Medium),
             color = Color.Black
-        )
-        // Label
+        ) // Label
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -363,5 +360,3 @@ fun CustomOutlineTextField(
         )
     }
 }
-
-private fun cleanAmountInput(input: String): String = input.replace(Regex("[^\\d.]"), "")

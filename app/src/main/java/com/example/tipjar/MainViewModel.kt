@@ -24,24 +24,27 @@ class MainViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val moneyFormat = DecimalFormat("#,###.##")
 
-    var amount = mutableStateOf("")
-    var people = mutableIntStateOf(0)
-    var tipPercent = mutableIntStateOf(0)
+    private var mutableAmount = mutableStateOf("")
+    val amount: State<String> = mutableAmount
+    private var mutablePeople = mutableIntStateOf(0)
+    val people: State<Int> = mutablePeople
+    private var mutableTipPercent = mutableIntStateOf(0)
+    val tipPercent: State<Int> = mutableTipPercent
 
     private var totalTip = derivedStateOf {
-        val amountDouble: Double = amount.value.toDoubleOrNull() ?: 0.0
-        amountDouble * tipPercent.intValue / 100
+        val amountDouble: Double = mutableAmount.value.toDoubleOrNull() ?: 0.0
+        amountDouble * mutableTipPercent.intValue / 100
     }
     val totalTipString = derivedStateOf { moneyFormat.format(totalTip.value) }
 
     private var perPerson = derivedStateOf {
-        val people = people.intValue
+        val people = mutablePeople.intValue
         if (people == 0) 0.0 else totalTip.value / people
     }
     val perPersonString = derivedStateOf { moneyFormat.format(perPerson.value) }
 
     val savePaymentStatus = derivedStateOf {
-        val amountValue = amount.value.toDoubleOrNull() ?: 0.0
+        val amountValue = mutableAmount.value.toDoubleOrNull() ?: 0.0
         amountValue > 0
     }
 
@@ -50,6 +53,25 @@ class MainViewModel @Inject constructor(
 
     private val mutableSelectedTipHistory = MutableStateFlow<TipHistory?>(null)
     val selectedTipHistory: StateFlow<TipHistory?> = mutableSelectedTipHistory
+
+    fun updateAmount(newAmount: String) {
+        mutableAmount.value = cleanAmountInput(newAmount)
+    }
+
+    private fun cleanAmountInput(input: String): String =
+        input.replace(Regex("[^\\d.]"), "")
+
+    fun updateTipPercent(newPercentage: String) {
+        mutableTipPercent.intValue = newPercentage.toIntOrNull() ?: 0
+    }
+
+    fun updatePeople(isIncreasing: Boolean) {
+        if (isIncreasing) {
+            mutablePeople.intValue++
+        } else {
+            if (mutablePeople.intValue >= 1) mutablePeople.intValue--
+        }
+    }
 
     fun loadAllTipHistories() {
         viewModelScope.launch {
@@ -63,7 +85,7 @@ class MainViewModel @Inject constructor(
         val timestamp = currentTimeInMillis()
         val tipHistory = TipHistory(
             timestamp = timestamp,
-            amount = amount.value.toDoubleOrNull() ?: 0.0,
+            amount = mutableAmount.value.toDoubleOrNull() ?: 0.0,
             tip = totalTip.value,
             photoUri = photoUri
         )
